@@ -4,10 +4,12 @@ module.exports = {
 		console.log(`${interaction.user.tag} in #${interaction.channel.name} triggered an interaction.`);
 		
 		if (!interaction.isCommand()) return;
-
 		const { commandName } = interaction;
-		if (commandName === 'ping') {
-			interaction.reply('Pong!');
+
+		switch(commandName) {
+			case 'help':
+				interaction.reply('En construccion');
+				break;
 		}
 	}
-};
+}

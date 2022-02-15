@@ -6,8 +6,7 @@
 const { Client, Collection, Intents } = require('discord.js');
 const { token } = require('./config.json');
 const fs = require('fs');
-
-const discordClient = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const discordClient = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 discordClient.login(token);
 
 
