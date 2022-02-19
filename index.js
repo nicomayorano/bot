@@ -3,26 +3,19 @@
 //=======================//
 
 // Imports and instances
-const { Client, Collection, Intents } = require('discord.js');
-const { token } = require('./config.json');
-const fs = require('fs');
+import { Client, Intents } from 'discord.js';
+import config from './config.js';
+import fs from 'fs';
+
 const discordClient = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
-discordClient.login(token);
-
-
-// Dinamically imports commands
-discordClient.commands = new Collection();
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	discordClient.commands.set(command.data.name, command);
-}
+discordClient.login(config.token);
 
 
 //Event handling
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
-	const event = require(`./events/${file}`);
+	const { default: event } = await import(`./events/${file}`);
+	console.log(event);
 	if (event.once) {
 		discordClient.once(event.name, (...args) => event.execute(...args));
 	} else {

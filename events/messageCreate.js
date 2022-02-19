@@ -1,10 +1,10 @@
 // Imports
-let cuandoJuega  = require('./api-football/cuandojuega');
+import { buscarEquipo } from '../api-football/cuandojuega.js';
 
 // Constants
 const MESSAGE_COMMAND_SUFFIX = '!';
 
-module.exports = {
+export default {
 	name: 'messageCreate',
 	execute(message) {
         if (!message.content.startsWith(MESSAGE_COMMAND_SUFFIX)) return;
@@ -14,13 +14,8 @@ module.exports = {
 			case 'cuandojuega':
 				splitString.shift();
 				let equipo = splitString.join(' ');
-				console.log(cuandoJuega.buscarEquipo(equipo));
-				
-
-
-
-				;
-				break
+				console.log(buscarEquipo(equipo));
+				break;
 		}
 	}
 }
