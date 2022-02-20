@@ -15,7 +15,6 @@ discordClient.login(config.token);
 const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 for (const file of eventFiles) {
 	const { default: event } = await import(`./events/${file}`);
-	console.log(event);
 	if (event.once) {
 		discordClient.once(event.name, (...args) => event.execute(...args));
 	} else {
