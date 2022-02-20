@@ -6,21 +6,54 @@ import config from '../config.js';
 const API_FOOTBALL_TEAMS = "https://v3.football.api-sports.io/teams";
 const API_FOOTBALL_FIXTURE = "https://v3.football.api-sports.io/fixtures";
 
-// !cuandojuega implementation
-export async function buscarEquipo(string) {
-    let parsedTeams = await fetchParsedDataFromAPI(buildUrl(API_FOOTBALL_TEAMS, {search: string}), 'GET', buildHeader({'x-apisports-key': config.apisportsToken }));
-    let argentinianTeams = parsedTeams.response.filter(element => element.team.country === "Argentina" && element.team.founded != null);
-    if (argentinianTeams.length != 1) {
-        let teams = [];
-        for (const element of argentinianTeams) {
-            teams.push(element.team.name);
-        }
-        return teams;
-    }
-    return argentinianTeams[0].team.id;
+// Helper function
+function strBuilder (gameData, isHome, isArgentinian, otherTeams) {
+    let response = `${isHome ? gameData.teams.home.name : gameData.teams.away.name} juega de ${isHome ? 'local' : 'visitante'} contra ${isHome ? gameData.teams.away.name : gameData.teams.home.name}, el ${new Date(gameData.fixture.timestamp * 1000).toLocaleDateString('es-AR')} a las ${new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString('es-AR', {second: undefined})} horas`;
+
+    if (!isArgentinian) {
+        return response.concat('(mostrando al equipo extranjero de mas renombre, no se encontraron equipos de Argentina)');
+    } else if (otherTeams.length != 0) {
+        return response.concat(`(mostrando al equipo de mas renombre, se encontraron tambien: ${otherTeams.join(', ')})`);
+    } return response;
 }
 
-export async function buscarProximoOponente(teamID) {
-    let data = await fetchParsedDataFromAPI(buildUrl(API_FOOTBALL_FIXTURE, {team: teamID, next: 1, season: new Date().getFullYear()}), 'GET', buildHeader({'x-apisports-key': config.apisportsToken }));
-    return data.response[0];
+// !cuandojuega implementation
+export async function cuandoJuega(args) {
+    args.shift(); // removes "cuandojuega" from array of arguments
+
+    // Fetches parsed data and stores both every and argentinian teams
+    let allTeams;
+    {
+        let rawData =  await fetchParsedDataFromAPI(buildUrl(API_FOOTBALL_TEAMS, {search: args.join(' ')}), 'GET', buildHeader({'x-apisports-key': config.apisportsToken }));
+        allTeams = rawData.response;
+    }
+    if (allTeams.length === 0) return "No reconozco el equipo buscado"; // No team found at all
+    let argentinianTeams = allTeams.filter(element => element.team.country === "Argentina" && element.team.founded != null);
+    
+    // In case of no argentian team, return the lowest id offshore team
+    if (argentinianTeams.length === 0) {
+        let offshoreTeam = allTeams[0].team;
+        let gameData;
+        {
+            let rawGameData = await fetchParsedDataFromAPI(buildUrl(API_FOOTBALL_FIXTURE, {team: offshoreTeam.id, next: 1}), 'GET', buildHeader({'x-apisports-key': config.apisportsToken }));
+            gameData = rawGameData.response[0];
+        }
+        let isHome = gameData.teams.home.id === offshoreTeam.id ? true : false;
+        return strBuilder(gameData, isHome, false);
+    }
+
+    // Argentinian team
+    let argentinianTeam = argentinianTeams[0].team;
+    let otherTeamsNames = [];
+    if (argentinianTeams.length > 1) {
+        for (const element of argentinianTeams) otherTeamsNames.push(element.team.name);
+    }
+    let gameData;
+    {
+        let rawGameData = await fetchParsedDataFromAPI(buildUrl(API_FOOTBALL_FIXTURE, {team: argentinianTeam.id, next: 1}), 'GET', buildHeader({'x-apisports-key': config.apisportsToken }));
+        gameData = rawGameData.response[0];
+    }
+    
+    let isHome = gameData.teams.home.id === argentinianTeam.id ? true : false;
+    return strBuilder(gameData, isHome, true, otherTeamsNames);
 }
