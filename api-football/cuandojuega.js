@@ -9,8 +9,14 @@ const API_FOOTBALL_FIXTURE = "https://v3.football.api-sports.io/fixtures";
 // !cuandojuega implementation
 export async function buscarEquipo(string) {
     let parsedTeams = await fetchParsedDataFromAPI(buildUrl(API_FOOTBALL_TEAMS, {search: string}), 'GET', buildHeader({'x-apisports-key': config.apisportsToken }));
-    let argentinianTeams = parsedTeams.response.filter(element => element.team.country === "Argentina");
-    if (argentinianTeams.length != 1) return []; 
+    let argentinianTeams = parsedTeams.response.filter(element => element.team.country === "Argentina" && element.team.founded != null);
+    if (argentinianTeams.length != 1) {
+        let teams = [];
+        for (const element of argentinianTeams) {
+            teams.push(element.team.name);
+        }
+        return teams;
+    }
     return argentinianTeams[0].team.id;
 }
 

@@ -13,17 +13,21 @@ export default {
         switch(splitString[0]) {
 			case 'cuandojuega':
 				splitString.shift();
-				let teamID = await buscarEquipo(splitString.join(' '));
-				if (teamID.length === 0) {
-					message.reply("No reconozco el equipo o hay varios con ese nombre");
-					break;
+				let team = await buscarEquipo(splitString.join(' '));
+				if (team.length === 0) {
+					message.reply("No reconozco el equipo");
+				} else if (team.length > 1) {
+					let str = 'Hay mas de un equipo con ese nombre. Opciones: ';
+					let response = str.concat(team.join(', '));
+					message.reply(response);
+				} else {
+					let data = await buscarProximoOponente(team);
+					let isHome = data.teams.home.id === team ? true : false;
+					message.reply(`Contra ${isHome ? data.teams.away.name : data.teams.home.name} el ${new Date(data.fixture.timestamp * 1000).toLocaleDateString('es-ES')} a las ${new Date(data.fixture.timestamp * 1000).toLocaleTimeString('es-ES')}`)
+					.then(() => console.log(`Replied to message "${message.content}"`))
+  					.catch(console.error);
 				}
-				let data = await buscarProximoOponente(teamID);
-				let isHome = data.teams.home.id === teamID ? true : false;
-				message.reply(`Contra ${isHome ? data.teams.away.name : data.teams.home.name} el ${new Date(data.fixture.timestamp * 1000).toLocaleDateString()}`)
-  				.then(() => console.log(`Replied to message "${message.content}"`))
-  				.catch(console.error);
-				break;
+				break;	
 		}
 	}
 }
