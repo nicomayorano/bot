@@ -12,20 +12,20 @@ function strBuilder(gameData, isHome, isArgentinian, otherTeams) {
     isHome ? gameData.teams.home.name : gameData.teams.away.name
   } juega de ${isHome ? "local" : "visitante"} contra ${
     isHome ? gameData.teams.away.name : gameData.teams.home.name
-  }, el ${new Date(gameData.fixture.timestamp * 1000).toLocaleDateString(
-    "es-AR"
+  } el ${new Date(gameData.fixture.timestamp * 1000).toLocaleDateString(
+    "es-MX"
   )} a las ${new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString(
-    "es-AR",
-    { second: undefined }
+    "es-MX",
+    { hour: "2-digit", minute: "2-digit" }
   )} horas`;
 
   if (!isArgentinian) {
     return response.concat(
-      "(mostrando al equipo extranjero de mas renombre, no se encontraron equipos de Argentina)"
+      " (mostrando al equipo extranjero de mas renombre, no se encontraron equipos de Argentina)"
     );
   } else if (otherTeams.length != 0) {
     return response.concat(
-      `(mostrando al equipo de mas renombre, se encontraron tambien: ${otherTeams.join(
+      ` (mostrando al equipo de mas renombre, se encontraron tambien: ${otherTeams.join(
         ", "
       )})`
     );

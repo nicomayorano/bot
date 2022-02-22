@@ -13,10 +13,12 @@ export default {
       .replace(/\s+/g, " ")
       .trim()
       .split(" "); //removes suffix and repeated whitespaces, splits in an array of strings
+    let reply;
+
 
     switch (args[0]) {
       case "cuandojuega":
-        let reply = await cuandoJuega(args);
+        reply = await cuandoJuega(args);
         message
           .reply(reply)
           .then(() => console.log(`Replied to message "${message.content}"`))
@@ -24,7 +26,7 @@ export default {
         break;
 
       case "precio":
-        let reply = await cuandoJuega(args);
+        reply = await cuandoJuega(args);
         message
           .reply(reply)
           .then(() => console.log(`Replied to message "${message.content}"`))
