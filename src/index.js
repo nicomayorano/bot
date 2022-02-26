@@ -1,6 +1,6 @@
-// ======================//
-// Mariote's Discord Bot //
-// ======================//
+// ====================== //
+// Mariote's Discord Bot  //
+// ====================== //
 
 // Imports and instances
 import { Client, Intents } from 'discord.js';
