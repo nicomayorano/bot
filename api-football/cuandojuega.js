@@ -74,7 +74,7 @@ export default async function cuandoJuega(args) {
   const argentinianTeam = argentinianTeams[0].team;
   const otherTeamsNames = [];
   if (argentinianTeams.length > 1) {
-    for (let i = 0; i < argentinianTeams.length; i += 1) {
+    for (let i = 1; i < argentinianTeams.length; i += 1) {
       otherTeamsNames.push(argentinianTeams[i].team.name);
     }
   }
