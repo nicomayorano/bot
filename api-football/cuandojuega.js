@@ -1,6 +1,7 @@
+/* eslint-disable import/extensions */
 // Imports
-import { fetchParsedDataFromAPI, buildUrl, buildHeader } from '../src/functions';
-import config from '../src/config';
+import { fetchParsedDataFromAPI, buildUrl, buildHeader } from '../src/functions.js';
+import config from '../src/config.js';
 
 // Constants
 const API_FOOTBALL_TEAMS = 'https://v3.football.api-sports.io/teams';

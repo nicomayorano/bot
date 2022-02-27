@@ -1,5 +1,7 @@
+/* eslint-disable import/no-duplicates */
 // Imports
 import fetch from 'node-fetch';
+import { Headers } from 'node-fetch';
 
 // Helper functions
 export async function fetchParsedDataFromAPI(url, meth, head) {
@@ -17,7 +19,7 @@ export function buildUrl(urlString, params) {
 }
 
 export function buildHeader(object) {
-  const header = new fetch.Headers();
+  const header = new Headers();
   const keys = Object.keys(object);
   const values = Object.values(object);
   for (let i = 0; i < keys.length; i += 1) {

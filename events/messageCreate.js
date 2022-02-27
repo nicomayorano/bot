@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 // Imports
-import cuandoJuega from '../api-football/cuandojuega';
+// eslint-disable-next-line import/extensions
+import cuandoJuega from '../api-football/cuandojuega.js';
 
 // Constants
 const MESSAGE_COMMAND_SUFFIX = '!';
