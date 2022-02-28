@@ -16,14 +16,13 @@ export default {
       .trim()
       .split(' '); // removes suffix and repeated whitespaces, splits in an array of strings
     let reply;
+    let channel;
 
     switch (args[0]) {
-      case 'cuandojuega':
+      case 'juega':
         reply = await cuandoJuega(args);
-        message
-          .reply(reply)
-          .then(() => console.log(`Replied to message "${message.content}"`))
-          .catch(console.error);
+        channel = message.channel;
+        channel.send({ embeds: [reply] });
         break;
 
       case 'precio':

@@ -1,5 +1,6 @@
 /* eslint-disable import/extensions */
 // Imports
+import { MessageEmbed } from 'discord.js';
 import { fetchParsedDataFromAPI, buildUrl, buildHeader } from '../src/functions.js';
 import config from '../src/config.js';
 
@@ -8,6 +9,23 @@ const API_FOOTBALL_TEAMS = 'https://v3.football.api-sports.io/teams';
 const API_FOOTBALL_FIXTURE = 'https://v3.football.api-sports.io/fixtures';
 
 // Helper function
+function embedBuilder(command, isHome, gameData) {
+  const date = new Date(gameData.fixture.timestamp * 1000).toLocaleDateString('es-MX');
+  const time = new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString('es-MX');
+
+  const embed = new MessageEmbed()
+    .setTitle(command)
+    .setDescription(isHome ? gameData.teams.home.name : gameData.teams.away.name)
+    .addFields(
+      { name: 'Fecha', value: `${date} ${time}` },
+      { name: 'Rival', value: isHome ? gameData.teams.away.name : gameData.teams.home.name },
+      { name: 'Estadio', value: gameData.fixture.venue.name },
+    )
+    .setImage(isHome ? gameData.teams.home.logo : gameData.teams.away.logo)
+    .setTimestamp();
+  return embed;
+}
+
 function strBuilder(gameData, isHome, isArgentinian, otherTeams) {
   const response = `${
     isHome ? gameData.teams.home.name : gameData.teams.away.name
@@ -36,7 +54,7 @@ function strBuilder(gameData, isHome, isArgentinian, otherTeams) {
 
 // !cuandojuega implementation
 export default async function cuandoJuega(args) {
-  args.shift(); // removes "cuandojuega" from array of arguments
+  const command = args.shift(); // removes "cuandojuega" from array of arguments
 
   // Fetches parsed data and stores both every and argentinian teams
   let allTeams;
@@ -66,8 +84,7 @@ export default async function cuandoJuega(args) {
       // eslint-disable-next-line prefer-destructuring
       gameData = rawGameData.response[0];
     }
-    const isHome = gameData.teams.home.id === offshoreTeam.id;
-    return strBuilder(gameData, isHome, false);
+    return embedBuilder(command, gameData.teams.home.id === offshoreTeam.id, gameData);
   }
 
   // Argentinian team
@@ -88,7 +105,5 @@ export default async function cuandoJuega(args) {
     // eslint-disable-next-line prefer-destructuring
     gameData = rawGameData.response[0];
   }
-
-  const isHome = gameData.teams.home.id === argentinianTeam.id;
-  return strBuilder(gameData, isHome, true, otherTeamsNames);
+  return strBuilder(gameData, gameData.teams.home.id === argentinianTeam.id, true, otherTeamsNames);
 }

@@ -3,7 +3,6 @@
 import fetch from 'node-fetch';
 import { Headers } from 'node-fetch';
 
-// Helper functions
 export async function fetchParsedDataFromAPI(url, meth, head) {
   const response = await fetch(url, {
     method: meth,
