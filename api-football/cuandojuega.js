@@ -9,52 +9,25 @@ const API_FOOTBALL_TEAMS = 'https://v3.football.api-sports.io/teams';
 const API_FOOTBALL_FIXTURE = 'https://v3.football.api-sports.io/fixtures';
 
 // Helper function
-function embedBuilder(command, isHome, gameData) {
+function embedBuilder(isHome, gameData, isArgentinian = false, otherTeams = []) {
   const date = new Date(gameData.fixture.timestamp * 1000).toLocaleDateString('es-MX');
-  const time = new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString('es-MX');
+  const time = new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
   const embed = new MessageEmbed()
-    .setTitle(command)
-    .setDescription(isHome ? gameData.teams.home.name : gameData.teams.away.name)
+    .setTitle('Proximo partido')
     .addFields(
       { name: 'Fecha', value: `${date} ${time}` },
       { name: 'Rival', value: isHome ? gameData.teams.away.name : gameData.teams.home.name },
       { name: 'Estadio', value: gameData.fixture.venue.name },
     )
-    .setImage(isHome ? gameData.teams.home.logo : gameData.teams.away.logo)
-    .setTimestamp();
+    .setImage(isHome ? gameData.teams.home.logo : gameData.teams.away.logo);
+  if (isArgentinian && otherTeams.length) embed.setFooter(`Otros equipos: ${otherTeams.join(', ')}`);
   return embed;
-}
-
-function strBuilder(gameData, isHome, isArgentinian, otherTeams) {
-  const response = `${
-    isHome ? gameData.teams.home.name : gameData.teams.away.name
-  } juega de ${isHome ? 'local' : 'visitante'} contra ${
-    isHome ? gameData.teams.away.name : gameData.teams.home.name
-  } el ${new Date(gameData.fixture.timestamp * 1000).toLocaleDateString(
-    'es-MX',
-  )} a las ${new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString(
-    'es-MX',
-    { hour: '2-digit', minute: '2-digit' },
-  )} horas`;
-
-  if (!isArgentinian) {
-    return response.concat(
-      ' (mostrando al equipo extranjero de mas renombre, no se encontraron equipos de Argentina)',
-    );
-  } if (otherTeams.length !== 0) {
-    return response.concat(
-      ` (mostrando al equipo de mas renombre, se encontraron tambien: ${otherTeams.join(
-        ', ',
-      )})`,
-    );
-  }
-  return response;
 }
 
 // !cuandojuega implementation
 export default async function cuandoJuega(args) {
-  const command = args.shift(); // removes "cuandojuega" from array of arguments
+  args.shift(); // removes command from array of arguments
 
   // Fetches parsed data and stores both every and argentinian teams
   let allTeams;
@@ -66,7 +39,10 @@ export default async function cuandoJuega(args) {
     );
     allTeams = rawData.response;
   }
-  if (allTeams.length === 0) return 'No reconozco el equipo buscado'; // No team found at all
+  if (allTeams.length === 0) { // No team found at all
+    const embed = new MessageEmbed().setTitle('Equipo no encontrado');
+    return embed;
+  }
   const argentinianTeams = allTeams.filter(
     (element) => element.team.country === 'Argentina' && element.team.founded != null,
   );
@@ -84,15 +60,19 @@ export default async function cuandoJuega(args) {
       // eslint-disable-next-line prefer-destructuring
       gameData = rawGameData.response[0];
     }
-    return embedBuilder(command, gameData.teams.home.id === offshoreTeam.id, gameData);
+    if (!gameData) { // No team found at all
+      const embed = new MessageEmbed().setTitle('Proximo partido indefinido');
+      return embed;
+    }
+    return embedBuilder(gameData.teams.home.id === offshoreTeam.id, gameData);
   }
 
   // Argentinian team
   const argentinianTeam = argentinianTeams[0].team;
-  const otherTeamsNames = [];
+  const otherTeams = [];
   if (argentinianTeams.length > 1) {
     for (let i = 1; i < argentinianTeams.length; i += 1) {
-      otherTeamsNames.push(argentinianTeams[i].team.name);
+      otherTeams.push(argentinianTeams[i].team.name);
     }
   }
   let gameData;
@@ -105,5 +85,9 @@ export default async function cuandoJuega(args) {
     // eslint-disable-next-line prefer-destructuring
     gameData = rawGameData.response[0];
   }
-  return strBuilder(gameData, gameData.teams.home.id === argentinianTeam.id, true, otherTeamsNames);
+  if (!gameData) { // No team found at all
+    const embed = new MessageEmbed().setTitle('Proximo partido indefinido');
+    return embed;
+  }
+  return embedBuilder(gameData.teams.home.id === argentinianTeam.id, gameData, true, otherTeams);
 }
