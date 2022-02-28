@@ -1,7 +1,9 @@
 /* eslint-disable no-console */
+/* eslint-disable import/extensions */
+
 // Imports
-// eslint-disable-next-line import/extensions
 import cuandoJuega from '../api-football/cuandojuega.js';
+import precio from '../crypto/precio.js';
 
 // Constants
 const MESSAGE_COMMAND_SUFFIX = '!';
@@ -26,11 +28,9 @@ export default {
         break;
 
       case 'precio':
-        reply = await cuandoJuega(args);
-        message
-          .reply(reply)
-          .then(() => console.log(`Replied to message "${message.content}"`))
-          .catch(console.error);
+        reply = await precio(args);
+        channel = message.channel;
+        channel.send({ embeds: [reply] });
         // Powered by CoinGecko
         break;
 
