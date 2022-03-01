@@ -31,7 +31,6 @@ export default {
         reply = await precio(args);
         channel = message.channel;
         channel.send({ embeds: [reply] });
-        // Powered by CoinGecko
         break;
 
       default:
