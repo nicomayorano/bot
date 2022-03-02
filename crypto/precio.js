@@ -19,7 +19,7 @@ export default async function precio(args) {
     // eslint-disable-next-line prefer-destructuring
     coinData = rawData.coins[0];
   }
-  if (coinData.id === undefined) {
+  if (coinData === undefined) {
     const embed = new MessageEmbed().setTitle('Coin no encontrada');
     return embed;
   }
