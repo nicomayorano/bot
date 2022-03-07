@@ -14,18 +14,18 @@ function embedBuilder(isHome, gameData, isArgentinian = false, otherTeams = []) 
   const time = new Date(gameData.fixture.timestamp * 1000).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
   const embed = new MessageEmbed()
-    .setTitle('Proximo partido')
+    .setTitle('Próximo partido')
     .addFields(
       { name: 'Fecha', value: `${date} ${time}` },
       { name: 'Rival', value: isHome ? gameData.teams.away.name : gameData.teams.home.name },
-      { name: 'Estadio', value: gameData.fixture.venue.name },
+      { name: 'Estadio', value: gameData.fixture.venue.name || 'Desconocido' },
     )
     .setImage(isHome ? gameData.teams.home.logo : gameData.teams.away.logo);
   if (isArgentinian && otherTeams.length) embed.setFooter(`Otros equipos: ${otherTeams.join(', ')}`);
   return embed;
 }
 
-// !cuandojuega implementation
+// !juega implementation
 export default async function cuandoJuega(args) {
   args.shift(); // removes command from array of arguments
 
