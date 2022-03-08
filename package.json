@@ -16,7 +16,8 @@
     "@discordjs/rest": "^0.3.0",
     "discord-api-types": "^0.27.1",
     "discord.js": "^13.6.0",
-    "node-fetch": "^3.2.0"
+    "node-fetch": "^3.2.0",
+    "sequelize": "^6.17.0"
   },
   "devDependencies": {
     "eslint": "^8.9.0",
